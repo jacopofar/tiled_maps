@@ -1,21 +1,21 @@
 { "columns":3,
- "image":"Dirt (Non-Winter).png",
- "imageheight":64,
+ "image":"Grass-Dirt (Spring).png",
+ "imageheight":224,
  "imagewidth":96,
  "margin":0,
- "name":"Dirt (Non-Winter)",
+ "name":"Grass-Dirt (Spring)",
  "spacing":0,
- "tilecount":6,
+ "tilecount":21,
  "tiledversion":"1.10.1",
  "tileheight":32,
  "tiles":[
         {
-         "id":1,
+         "id":15,
          "properties":[
                 {
                  "name":"name",
                  "type":"string",
-                 "value":"dirt_a"
+                 "value":"park_a"
                 }]
         }],
  "tilewidth":32,

@@ -42,7 +42,7 @@ def tile_to_terrainmap(
                 index_bounds as (
                     select min(x) as minx, min(y) as miny from grid
                 ),
-               cells_with_roads as (select distinct 'road' as name, g.x, g.y
+                cells_with_roads as (select distinct 'road' as name, g.x, g.y
                           from grid g,
                                osm.road_line rl
                           where st_intersects(g.geom, rl.geom)),
@@ -50,10 +50,18 @@ def tile_to_terrainmap(
                                     from grid g,
                                         osm.building_polygon bp
                                     where st_intersects(g.geom, bp.geom)),
+                cells_with_parks as (select distinct 'park' as name, g.x, g.y
+                                    from grid g,
+                                        osm.leisure_polygon lp
+                                    where st_intersects(g.geom, lp.geom)
+                                        and lp.osm_type = 'park'
+                                    ),
                 all_relevant_cells as (
                     select name, x, y from cells_with_roads
                                     union all
                     select name, x, y from cells_with_buildings
+                                    union all
+                    select name, x, y from cells_with_parks
                 )
             select x - minx as x, %(tiles)s - y + miny as y, name
             from all_relevant_cells,

@@ -1,21 +1,21 @@
-{ "columns":3,
- "image":"Dirt (Non-Winter).png",
- "imageheight":64,
- "imagewidth":96,
+{ "columns":6,
+ "image":"Brick Wall A.png",
+ "imageheight":288,
+ "imagewidth":192,
  "margin":0,
- "name":"Dirt (Non-Winter)",
+ "name":"Brick Wall A",
  "spacing":0,
- "tilecount":6,
+ "tilecount":54,
  "tiledversion":"1.10.1",
  "tileheight":32,
  "tiles":[
         {
-         "id":1,
+         "id":7,
          "properties":[
                 {
                  "name":"name",
                  "type":"string",
-                 "value":"dirt_a"
+                 "value":"wall_bright"
                 }]
         }],
  "tilewidth":32,
