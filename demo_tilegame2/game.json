@@ -1,0 +1,12 @@
+{
+  "gameTitle": "Chunked tiles 2d game",
+  "gameScreenWidth": 640,
+  "gameScreenHeight": 640,
+  "playerSpritesheet": "spritesheets/MainGuySpriteSheet.json",
+  "startX": 350,
+  "startY": 90,
+  "initialWorld": "maps/generated/world.world",
+  "playerSpriteHeight": 36,
+  "playerSpriteWidth": 36,
+  "backend": "ws://127.0.0.1:8000"
+}

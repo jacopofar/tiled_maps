@@ -1,0 +1,14 @@
+{ "columns":3,
+ "image":"Dirt (Non-Winter).png",
+ "imageheight":64,
+ "imagewidth":96,
+ "margin":0,
+ "name":"Dirt (Non-Winter)",
+ "spacing":0,
+ "tilecount":6,
+ "tiledversion":"1.10.1",
+ "tileheight":32,
+ "tilewidth":32,
+ "type":"tileset",
+ "version":"1.10"
+}
