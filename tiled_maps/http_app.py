@@ -51,7 +51,7 @@ def retrieve_game_file(file_path: str, conn=Depends(get_connection)):
     print(p)
     print(base_folder)
     assert p.is_relative_to(base_folder)
-    if p.exists():
+    if p.exists() and not p.is_dir():
         raw_data = p.read_bytes()
         return Response(content=raw_data, media_type=mimetypes.guess_type(file_path)[0])
     # does not exist, is it a chunk to calculate?
