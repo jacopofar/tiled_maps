@@ -1,4 +1,4 @@
-from tiled_maps.tilemaps import TerrainMap
+from tiled_maps.tilemap import TerrainMap
 
 from PIL import Image, ImageDraw
 
