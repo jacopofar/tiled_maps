@@ -1,0 +1,65 @@
+{
+  "title": "Tiled Map",
+  "type": "object",
+  "properties": {
+    "height": { "type": "number" },
+    "width": { "type": "number" },
+    "tilewidth": { "type": "number" },
+    "tileheight": { "type": "number" },
+    "layers": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "array",
+                "items": { "type": "number" }
+              },
+              "type": { "const": "tilelayer" }
+            }
+          },
+          {
+            "type": "object",
+            "properties": {
+              "objects": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "x": { "type": "number" },
+                    "y": { "type": "number" },
+                    "properties": { "type": "object" }
+                  }
+                }
+              },
+              "type": { "const": "objectgroup" }
+            }
+          }
+        ]
+      }
+    },
+    "tilesets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "firstgid": { "type": "number" },
+          "source": { "type": "string" }
+        },
+        "additionalProperties": false,
+        "required": ["firstgid", "source"]
+      }
+    }
+  },
+  "additionalProperties": true,
+  "required": [
+    "layers",
+    "tilesets",
+    "height",
+    "width",
+    "tilewidth",
+    "tileheight"
+  ]
+}

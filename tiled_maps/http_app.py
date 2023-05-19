@@ -7,8 +7,9 @@ import re
 from os import environ
 
 from tiled_maps.database import get_connection, tile_to_terrainmap
-from tiled_maps.raster import terrainmap_to_image
+from tiled_maps.raster import terrainmap_to_image, render_tilemap
 from tiled_maps.tilemap import terrain_to_tilemap
+from tiled_maps.tiled_helpers import tilemap
 
 from fastapi import FastAPI, HTTPException
 from fastapi import Depends
@@ -45,11 +46,8 @@ def retrieve_xyz_tile(z: int, x: int, y: int, conn=Depends(get_connection)):
 
 @app.get("/game01/{file_path:path}")
 def retrieve_game_file(file_path: str, conn=Depends(get_connection)):
-    print(file_path)
     base_folder = Path("demo_tilegame2")
     p = base_folder / file_path
-    print(p)
-    print(base_folder)
     assert p.is_relative_to(base_folder)
     if p.exists() and not p.is_dir():
         raw_data = p.read_bytes()
@@ -63,7 +61,31 @@ def retrieve_game_file(file_path: str, conn=Depends(get_connection)):
     # so each cell is more or less a meter (very roughly)
     tm = tile_to_terrainmap(WORLD_CENTER_X + x, WORLD_CENTER_Y + y, 18, conn, tiles=128)
     whole_dict = terrain_to_tilemap(tm)
-    # write the file for cachine and troubleshooting
+    # write the file for caching and troubleshooting
     with open(p, "w") as fw:
         json.dump(whole_dict, fw)
     return whole_dict
+
+
+@app.get("/zxy_gamified/{z}/{x}/{y}.png")
+def retrieve_game_file(z: int, x: int, y: int, conn=Depends(get_connection)):
+    base_folder = Path("demo_tilegame2")
+    if z != 18:
+        raise HTTPException(404, "unsupported zoom level")
+
+    chunk_x = x - WORLD_CENTER_X
+    chunk_y = y - WORLD_CENTER_Y
+    p = base_folder / f"maps/generated/chunk_{chunk_x}_{chunk_y}.json"
+
+    # assuming zoom level 18, a tile is a square of 152 meters of side
+    # so each cell is more or less a meter (very roughly)
+    tm = tile_to_terrainmap(x, y, 18, conn, tiles=128)
+    whole_dict = terrain_to_tilemap(tm)
+    # write the file for caching and troubleshooting
+    with open(p, "w") as fw:
+        json.dump(whole_dict, fw)
+    tm = tilemap.from_data(p, whole_dict)
+    out_image = render_tilemap(tm)
+    ret_data = BytesIO()
+    out_image.save(ret_data, "PNG")
+    return Response(content=ret_data.getvalue(), media_type="image/png")
