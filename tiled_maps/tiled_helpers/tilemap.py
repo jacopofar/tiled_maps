@@ -112,7 +112,7 @@ class TiledMap:
 def from_data(path: str, data: dict) -> TiledMap:
     parsed_layers = [Layer(**ld) for ld in data["layers"]]
     parsed_tileset_refs = [TileSetRef(**tsrd) for tsrd in data["tilesets"]]
-    data: TiledMap = TiledMap(
+    return TiledMap(
         path=path,
         **data
         | dict(
@@ -120,4 +120,3 @@ def from_data(path: str, data: dict) -> TiledMap:
             tilesets=parsed_tileset_refs,
         ),
     )
-    return data

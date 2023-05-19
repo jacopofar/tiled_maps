@@ -8,7 +8,7 @@ from os import environ
 
 from tiled_maps.database import get_connection, tile_to_terrainmap
 from tiled_maps.raster import terrainmap_to_image, render_tilemap
-from tiled_maps.tilemap import terrain_to_tilemap
+from tiled_maps.dumb_generator import terrain_to_tilemap
 from tiled_maps.tiled_helpers import tilemap
 
 from fastapi import FastAPI, HTTPException
@@ -68,7 +68,7 @@ def retrieve_game_file(file_path: str, conn=Depends(get_connection)):
 
 
 @app.get("/zxy_gamified/{z}/{x}/{y}.png")
-def retrieve_game_file(z: int, x: int, y: int, conn=Depends(get_connection)):
+def generate_raster_tile(z: int, x: int, y: int, conn=Depends(get_connection)):
     base_folder = Path("demo_tilegame2")
     if z != 18:
         raise HTTPException(404, "unsupported zoom level")

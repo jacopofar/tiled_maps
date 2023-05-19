@@ -1,6 +1,6 @@
 from functools import lru_cache
 
-from tiled_maps.tilemap import TerrainMap
+from tiled_maps.dumb_generator import TerrainMap
 from tiled_maps.tiled_helpers import tilemap
 from PIL import Image, ImageDraw
 
@@ -50,7 +50,7 @@ def get_tile_raster(img: str, bbox: tuple[int, int, int, int]) -> Image:
         return im_in.crop(bbox)
 
 
-def render_tilemap(tm: tilemap.TiledMap) -> Image:
+def render_tilemap(tm: tilemap.TiledMap) -> Image.Image:
     out = Image.new(
         "RGBA", (tm.width * tm.tilewidth, tm.height * tm.tileheight), (0, 0, 0, 0)
     )

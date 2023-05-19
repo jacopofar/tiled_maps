@@ -3,7 +3,7 @@ from os import environ
 import psycopg
 from psycopg.types import TypeInfo
 from psycopg.types.shapely import register_shapely
-from tiled_maps.tilemap import TerrainMap
+from tiled_maps.dumb_generator import TerrainMap
 
 POSTGIS_CONN_STR = environ["POSTGIS_CONN_STR"]
 
