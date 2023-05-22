@@ -68,5 +68,5 @@ if __name__ == "__main__":
 
     map_path = "demo_tilegame2/maps/manual/chunk_0_0.json"
     RAW_MAP = json.load(open(map_path))
-    tm = tilemap.from_data(map_path, RAW_MAP)
+    tm = tilemap.from_data(RAW_MAP | dict(path=map_path))
     render_tilemap(tm).show()

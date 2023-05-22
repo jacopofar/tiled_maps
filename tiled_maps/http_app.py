@@ -10,6 +10,8 @@ from tiled_maps.database import get_connection, tile_to_terrainmap
 from tiled_maps.raster import terrainmap_to_image, render_tilemap
 from tiled_maps.dumb_generator import terrain_to_tilemap
 from tiled_maps.tiled_helpers import tilemap
+from tiled_maps.tilegen import generate
+
 
 from fastapi import FastAPI, HTTPException
 from fastapi import Depends
@@ -70,21 +72,23 @@ def retrieve_game_file(file_path: str, conn=Depends(get_connection)):
 @app.get("/zxy_gamified/{z}/{x}/{y}.png")
 def generate_raster_tile(z: int, x: int, y: int, conn=Depends(get_connection)):
     base_folder = Path("demo_tilegame2")
-    if z != 18:
+    # zoom 15 means "squares" of 717 meters (at 50 degrees latitude)
+    # at 512 tiles it's a bit more than 1m per cell
+    if z != 15:
         raise HTTPException(404, "unsupported zoom level")
 
     chunk_x = x - WORLD_CENTER_X
     chunk_y = y - WORLD_CENTER_Y
     p = base_folder / f"maps/generated/chunk_{chunk_x}_{chunk_y}.json"
-
-    # assuming zoom level 18, a tile is a square of 152 meters of side
-    # so each cell is more or less a meter (very roughly)
-    tm = tile_to_terrainmap(x, y, 18, conn, tiles=128)
-    whole_dict = terrain_to_tilemap(tm)
+    import time
+    start = time.time()
+    tm = generate.generate_map(p, x, y, 15, conn, tiles=512)
+    print(f'Time for pure generation: {time.time() - start:.2f}')
     # write the file for caching and troubleshooting
+    data_repr = tm.to_dict()
     with open(p, "w") as fw:
-        json.dump(whole_dict, fw)
-    tm = tilemap.from_data(p, whole_dict)
+        json.dump(data_repr, fw)
+    tm = tilemap.from_data(data_repr)
     out_image = render_tilemap(tm)
     ret_data = BytesIO()
     out_image.save(ret_data, "PNG")

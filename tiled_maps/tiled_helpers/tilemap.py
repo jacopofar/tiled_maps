@@ -2,30 +2,7 @@ from dataclasses import dataclass
 from pathlib import Path
 import json
 
-
-@dataclass
-class TileSetTileDef:
-    id: int
-    properties: list[dict]
-
-
-@dataclass
-class TileSet:
-    columns: int
-    image: str
-    imageheight: int
-    imagewidth: int
-    margin: int
-    name: str
-    spacing: int
-    tilecount: int
-    tiledversion: str
-    tileheight: int
-    tilewidth: int
-    type: str
-    version: str
-    path: str
-    tiles: list[TileSetTileDef] | None = None
+from tiled_maps.tiled_helpers.tileset import TileSet, TileSetTileDef
 
 
 @dataclass
@@ -34,12 +11,12 @@ class Layer:
     width: int
     id: int
     name: str
-    opacity: float
     type: str
-    visible: bool
-    x: int
-    y: int
     data: list[int]
+    opacity: float = 1.0
+    visible: bool = True
+    x: int = 0
+    y: int = 0
 
     def tiles_with_coords(self, ignore_zero: bool = True):
         for idx, tid in enumerate(self.data):
@@ -47,17 +24,34 @@ class Layer:
                 continue
             yield ((idx % self.width) - self.x, (idx // self.height) - self.y, tid)
 
+    def set_tile(self, x: int, y: int, tid: int) -> None:
+        self.data[x + y * self.width] = tid
 
+    def to_dict(self) -> dict:
+        """An object that can be dumped as valid Tiled JSON"""
+        ret = {}
+        for k, v in self.__dict__.items():
+            if type(v) in (str, int, float, bool):
+                ret[k] = v
+            elif isinstance(v, Path):
+                ret[k] = str(v)
+            elif k == 'data':
+                ret[k] = v
+            else:
+                raise ValueError(f'How to serialize {k} of type {type(v)}?')
+        return ret
 @dataclass
 class TileSetRef:
     firstgid: int
     source: str
+    def to_dict(self) -> dict:
+        """An object that can be dumped as valid Tiled JSON"""
+        return dict(firstgid=self.firstgid, source=self.source)
 
 
 @dataclass
 class TiledMap:
     path: str
-    compressionlevel: int
     # height as number of tiles
     height: int
     # width as number of tiles
@@ -66,16 +60,17 @@ class TiledMap:
     tileheight: int
     # pixel width of a single tile
     tilewidth: int
-    infinite: bool
     layers: list[Layer]
     nextlayerid: int
     nextobjectid: int
-    orientation: str
-    renderorder: str
-    tiledversion: str
     tilesets: list[TileSetRef]
-    type: str
-    version: str
+    compressionlevel: int = -1
+    infinite: bool = False
+    orientation: str = "orthogonal"
+    renderorder: str = "right-down"
+    tiledversion: str = "1.10.1"
+    type: str = "map"
+    version: str = "1.10"
 
     def resolve_tileset(self, tsr: TileSetRef) -> TileSet:
         """Fetches the actual tileset from the reference in the map."""
@@ -108,12 +103,27 @@ class TiledMap:
                 )
         raise KeyError(f"No tiles found for {tid}")
 
+    def to_dict(self) -> dict:
+        """An object that can be dumped as valid Tiled JSON"""
+        ret = {}
+        for k, v in self.__dict__.items():
+            if type(v) in (str, int, float, bool):
+                ret[k] = v
+            elif isinstance(v, Path):
+                ret[k] = str(v)
+            elif k == 'layers' and type(v) == list:
+                ret[k] = [l.to_dict() for l in v]
+            elif k == 'tilesets' and type(v) == list:
+                ret[k] = [tsr.to_dict() for tsr in v]
+            else:
+                raise ValueError(f'How to serialize {k} of type {type(v)}?')
+        return ret
 
-def from_data(path: str, data: dict) -> TiledMap:
+
+def from_data(data: dict) -> TiledMap:
     parsed_layers = [Layer(**ld) for ld in data["layers"]]
     parsed_tileset_refs = [TileSetRef(**tsrd) for tsrd in data["tilesets"]]
     return TiledMap(
-        path=path,
         **data
         | dict(
             layers=parsed_layers,
