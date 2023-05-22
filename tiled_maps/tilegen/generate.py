@@ -26,10 +26,10 @@ def get_covered_points(
     min_x, max_x, min_y, max_y = tile_bbox
     g_min_x, g_min_y, g_max_x, g_max_y = geom_bbox
     cur_y = max(g_min_y, min_y)
-    while cur_y < min(max_y, g_max_y):
+    while cur_y <= min(max_y, g_max_y) + cell_height:
         cur_x = max(g_min_x, min_x)
         while cur_x < min(max_x, g_max_x):
-            if cur_x > min_x and cur_y > min_y:
+            if cur_x >= min_x and cur_y > min_y:
                 yield (
                     int((cur_x - min_x) / cell_width),
                     # NOTE: y coordinate uses computer graphic convention,

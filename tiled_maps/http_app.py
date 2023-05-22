@@ -1,4 +1,3 @@
-from typing import Union
 from io import BytesIO
 import json
 from pathlib import Path
@@ -6,10 +5,8 @@ import mimetypes
 import re
 from os import environ
 
-from tiled_maps.database import get_connection, tile_to_terrainmap
-from tiled_maps.raster import terrainmap_to_image, render_tilemap
-from tiled_maps.dumb_generator import terrain_to_tilemap
-from tiled_maps.tiled_helpers import tilemap
+from tiled_maps.database import get_connection
+from tiled_maps.raster import render_tilemap
 from tiled_maps.tilegen import generate
 
 
@@ -23,73 +20,58 @@ app = FastAPI()
 CHUNK_REGEX = re.compile(r".+chunk_(-?\d+)_(-?\d+).json")
 WORLD_CENTER_X = int(environ["WORLD_CENTER_X"])
 WORLD_CENTER_Y = int(environ["WORLD_CENTER_Y"])
+GAME_ZOOM_LEVEL = int(environ["GAME_ZOOM_LEVEL"])
+TILE_RESOLUTION = int(environ["TILE_RESOLUTION"])
 
-
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
-
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
-
-
-@app.get("/zxy/{z}/{x}/{y}.png")
-def retrieve_xyz_tile(z: int, x: int, y: int, conn=Depends(get_connection)):
-    print(z, x, y)
-    tm = tile_to_terrainmap(x, y, z, conn, tiles=32)
-    out_image = terrainmap_to_image(tm, tiles=32)
-
-    ret_data = BytesIO()
-    out_image.save(ret_data, "PNG")
-    return Response(content=ret_data.getvalue(), media_type="image/png")
-
-
-@app.get("/game01/{file_path:path}")
-def retrieve_game_file(file_path: str, conn=Depends(get_connection)):
+@app.get("/game/{file_path:path}")
+def get_path(file_path: str, conn=Depends(get_connection)):
     base_folder = Path("demo_tilegame2")
     p = base_folder / file_path
     assert p.is_relative_to(base_folder)
     if p.exists() and not p.is_dir():
         raw_data = p.read_bytes()
         return Response(content=raw_data, media_type=mimetypes.guess_type(file_path)[0])
-    # does not exist, is it a chunk to calculate?
+    # not there, was it a chunk request?
     if CHUNK_REGEX.match(file_path) is None:
-        raise HTTPException(status_code=404, detail="Item not found")
-    # it exists, get the coordinates
+        print("Cannot find ", p)
+        raise HTTPException(404, "File not found")
+    # it was, generate it on the fly
+    # get the tiled world coordinates
     x, y = (int(e) for e in CHUNK_REGEX.match(file_path).groups())
-    # assuming zoom level 18, a tile is a square of 152 meters of side
-    # so each cell is more or less a meter (very roughly)
-    tm = tile_to_terrainmap(WORLD_CENTER_X + x, WORLD_CENTER_Y + y, 18, conn, tiles=128)
-    whole_dict = terrain_to_tilemap(tm)
-    # write the file for caching and troubleshooting
-    with open(p, "w") as fw:
-        json.dump(whole_dict, fw)
-    return whole_dict
-
-
-@app.get("/zxy_gamified/{z}/{x}/{y}.png")
-def generate_raster_tile(z: int, x: int, y: int, conn=Depends(get_connection)):
-    base_folder = Path("demo_tilegame2")
     # zoom 15 means "squares" of 717 meters (at 50 degrees latitude)
     # at 512 tiles it's a bit more than 1m per cell
-    if z != 15:
-        raise HTTPException(404, "unsupported zoom level")
-
-    chunk_x = x - WORLD_CENTER_X
-    chunk_y = y - WORLD_CENTER_Y
-    p = base_folder / f"maps/generated/chunk_{chunk_x}_{chunk_y}.json"
+    geo_x = WORLD_CENTER_X + x
+    geo_y = WORLD_CENTER_Y + y
+    p = base_folder / f"maps/generated/chunk_{x}_{y}.json"
     import time
+
     start = time.time()
-    tm = generate.generate_map(p, x, y, 15, conn, tiles=512)
-    print(f'Time for pure generation: {time.time() - start:.2f}')
-    # write the file for caching and troubleshooting
+    tm = generate.generate_map(p, geo_x, geo_y, GAME_ZOOM_LEVEL, conn, tiles=GAME_TILE_RESOLUTION)
+    print(f"Time for pure generation: {time.time() - start:.2f}")
+    # cache the file
     data_repr = tm.to_dict()
     with open(p, "w") as fw:
         json.dump(data_repr, fw)
-    tm = tilemap.from_data(data_repr)
-    out_image = render_tilemap(tm)
-    ret_data = BytesIO()
-    out_image.save(ret_data, "PNG")
-    return Response(content=ret_data.getvalue(), media_type="image/png")
+    return data_repr
+
+
+@app.get("/zxy_gamified/{z}/{x}/{y}.{ext}")
+def generate_raster_tile(
+    z: int, x: int, y: int, ext: str, conn=Depends(get_connection)
+):
+    import time
+    start = time.time()
+    # path is fake, this is not going to be persisted
+    tm = generate.generate_map(Path("/fake"), x, y, z, conn, tiles=TILE_RESOLUTION)
+    print(f"Time for pure generation: {time.time() - start:.2f}")
+    data_repr = tm.to_dict()
+
+    if ext == "json":
+        return data_repr
+    elif ext == "png":
+        out_image = render_tilemap(tm)
+        ret_data = BytesIO()
+        out_image.save(ret_data, "PNG")
+        return Response(content=ret_data.getvalue(), media_type="image/png")
+    else:
+        return HTTPException(400, f"Unknown extension {ext}")

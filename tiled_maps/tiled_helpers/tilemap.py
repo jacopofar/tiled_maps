@@ -35,15 +35,18 @@ class Layer:
                 ret[k] = v
             elif isinstance(v, Path):
                 ret[k] = str(v)
-            elif k == 'data':
+            elif k == "data":
                 ret[k] = v
             else:
-                raise ValueError(f'How to serialize {k} of type {type(v)}?')
+                raise ValueError(f"How to serialize {k} of type {type(v)}?")
         return ret
+
+
 @dataclass
 class TileSetRef:
     firstgid: int
     source: str
+
     def to_dict(self) -> dict:
         """An object that can be dumped as valid Tiled JSON"""
         return dict(firstgid=self.firstgid, source=self.source)
@@ -111,12 +114,12 @@ class TiledMap:
                 ret[k] = v
             elif isinstance(v, Path):
                 ret[k] = str(v)
-            elif k == 'layers' and type(v) == list:
+            elif k == "layers" and type(v) == list:
                 ret[k] = [l.to_dict() for l in v]
-            elif k == 'tilesets' and type(v) == list:
+            elif k == "tilesets" and type(v) == list:
                 ret[k] = [tsr.to_dict() for tsr in v]
             else:
-                raise ValueError(f'How to serialize {k} of type {type(v)}?')
+                raise ValueError(f"How to serialize {k} of type {type(v)}?")
         return ret
 
 

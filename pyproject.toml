@@ -16,7 +16,7 @@ requires-python = ">=3.11"
 license = {text = "MIT"}
 
 [tool.pdm.scripts]
-serve = "uvicorn tiled_maps.http_app:app"
+serve = "uvicorn --workers 16 tiled_maps.http_app:app"
 typecheck = "mypy --explicit-package-bases tiled_maps"
 
 [tool.pdm.dev-dependencies]
