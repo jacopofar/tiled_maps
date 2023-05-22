@@ -1,0 +1,14 @@
+{ "columns":16,
+ "image":"victorian-streets.png",
+ "imageheight":3072,
+ "imagewidth":512,
+ "margin":0,
+ "name":"victorian-streets",
+ "spacing":0,
+ "tilecount":1536,
+ "tiledversion":"1.10.1",
+ "tileheight":32,
+ "tilewidth":32,
+ "type":"tileset",
+ "version":"1.10"
+}

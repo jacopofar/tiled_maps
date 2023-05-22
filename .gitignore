@@ -162,3 +162,8 @@ cython_debug/
 
 # my personal notes folder
 notes/
+
+# OSM exports (semi-protobuf files)
+*.pbf
+# postgis data folder
+pgdata/
