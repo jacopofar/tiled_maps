@@ -22,6 +22,27 @@ WORLD_CENTER_X = int(environ["WORLD_CENTER_X"])
 WORLD_CENTER_Y = int(environ["WORLD_CENTER_Y"])
 GAME_ZOOM_LEVEL = int(environ["GAME_ZOOM_LEVEL"])
 TILE_RESOLUTION = int(environ["TILE_RESOLUTION"])
+CELL_PIXEL_SIZE = int(environ["CELL_PIXEL_SIZE"])
+
+
+@app.get("/game/maps/generated/world.world")
+def get_world_file():
+    game_world_data = {
+        "patterns": [
+            {
+                "regexp": "chunk_(\\-?\\d+)_(\\-?\\d+)\\.json",
+                "multiplierX": TILE_RESOLUTION * CELL_PIXEL_SIZE,
+                "multiplierY": TILE_RESOLUTION * CELL_PIXEL_SIZE,
+                "offsetX": 0,
+                "offsetY": 0,
+            }
+        ],
+        "type": "world",
+    }
+    with open("demo_tilegame2/maps/generated/world.world", "w") as fw:
+        json.dump(game_world_data, fw, indent=2)
+    return game_world_data
+
 
 @app.get("/game/{file_path:path}")
 def get_path(file_path: str, conn=Depends(get_connection)):
@@ -38,15 +59,16 @@ def get_path(file_path: str, conn=Depends(get_connection)):
     # it was, generate it on the fly
     # get the tiled world coordinates
     x, y = (int(e) for e in CHUNK_REGEX.match(file_path).groups())
-    # zoom 15 means "squares" of 717 meters (at 50 degrees latitude)
-    # at 512 tiles it's a bit more than 1m per cell
     geo_x = WORLD_CENTER_X + x
     geo_y = WORLD_CENTER_Y + y
     p = base_folder / f"maps/generated/chunk_{x}_{y}.json"
+    print(f"Chunk {y, y} means XYZ {geo_x, geo_y, GAME_ZOOM_LEVEL}")
     import time
 
     start = time.time()
-    tm = generate.generate_map(p, geo_x, geo_y, GAME_ZOOM_LEVEL, conn, tiles=GAME_TILE_RESOLUTION)
+    tm = generate.generate_map(
+        p, geo_x, geo_y, GAME_ZOOM_LEVEL, conn, tiles=TILE_RESOLUTION
+    )
     print(f"Time for pure generation: {time.time() - start:.2f}")
     # cache the file
     data_repr = tm.to_dict()
@@ -60,6 +82,7 @@ def generate_raster_tile(
     z: int, x: int, y: int, ext: str, conn=Depends(get_connection)
 ):
     import time
+
     start = time.time()
     # path is fake, this is not going to be persisted
     tm = generate.generate_map(Path("/fake"), x, y, z, conn, tiles=TILE_RESOLUTION)

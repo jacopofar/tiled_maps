@@ -25,9 +25,9 @@ def get_covered_points(
 ) -> Generator[tuple[int, int, box], None, None]:
     min_x, max_x, min_y, max_y = tile_bbox
     g_min_x, g_min_y, g_max_x, g_max_y = geom_bbox
-    cur_y = max(g_min_y, min_y)
+    cur_y = max(g_min_y, min_y) - cell_height
     while cur_y <= min(max_y, g_max_y) + cell_height:
-        cur_x = max(g_min_x, min_x)
+        cur_x = max(g_min_x, min_x) - cell_width
         while cur_x < min(max_x, g_max_x):
             if cur_x >= min_x and cur_y > min_y:
                 yield (
@@ -56,17 +56,36 @@ def represent_feature(
             if p.intersects(geom):
                 tr.ground[(x, y)] = catalog.get_tile_by_name("wall_bright")
         return tr
-    elif tags.get("highway") == "footway":
+    elif tags.get("highway") in ("footway", "pedestrian"):
         tr = TiledRepresentation(ground={}, meter1={})
         for x, y, p in get_covered_points(bbox, geom.bounds, cell_width, cell_height):
             if p.intersects(geom):
                 tr.ground[(x, y)] = catalog.get_tile_by_name("dirt_a")
+        return tr
+    elif tags.get("highway") in ("residential", "primary", "secondary"):
+        tr = TiledRepresentation(ground={}, meter1={})
+        for x, y, p in get_covered_points(bbox, geom.bounds, cell_width, cell_height):
+            if p.intersects(geom):
+                tr.ground[(x, y)] = catalog.get_tile_by_name("paved_road_a")
         return tr
     elif tags.get("natural") == "water":
         tr = TiledRepresentation(ground={}, meter1={})
         for x, y, p in get_covered_points(bbox, geom.bounds, cell_width, cell_height):
             if p.intersects(geom):
                 tr.ground[(x, y)] = catalog.get_tile_by_name("water_a")
+        return tr
+    elif tags.get("landuse") == "grass":
+        tr = TiledRepresentation(ground={}, meter1={})
+        park_tile_gid = catalog.get_tile_by_name("park_a")
+        for x, y, p in get_covered_points(bbox, geom.bounds, cell_width, cell_height):
+            if p.intersects(geom):
+                tr.ground[(x, y)] = park_tile_gid
+        return tr
+    elif tags.get("natural") == "tree":
+        tr = TiledRepresentation(ground={}, meter1={})
+        for x, y, p in get_covered_points(bbox, geom.bounds, cell_width, cell_height):
+            if p.intersects(geom):
+                tr.meter1[(x, y)] = catalog.get_tile_by_name("tree_a")
         return tr
     else:
         return None

@@ -1,12 +1,12 @@
 {
-    "patterns": [
-        {
-            "regexp": "chunk_(\\-?\\d+)_(\\-?\\d+)\\.json",
-            "multiplierX": 16384,
-            "multiplierY": 16384,
-            "offsetX": 0,
-            "offsetY": 0
-        }
-    ],
-    "type": "world"
+  "patterns": [
+    {
+      "regexp": "chunk_(\\-?\\d+)_(\\-?\\d+)\\.json",
+      "multiplierX": 6400,
+      "multiplierY": 6400,
+      "offsetX": 0,
+      "offsetY": 0
+    }
+  ],
+  "type": "world"
 }

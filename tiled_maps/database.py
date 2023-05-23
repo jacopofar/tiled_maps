@@ -30,7 +30,13 @@ def retrieve_features(
     y_clause = "%(y)s"
     if swap_z:
         y_clause = f"(2 ^ %(z)s - %(y)s)::integer"
-    tables = ["building_polygon", "road_line", "water_polygon"]
+    tables = [
+        "building_polygon",
+        "road_line",
+        "water_polygon",
+        "landuse_polygon",
+        "natural_point",
+    ]
 
     results = conn.execute(
         """

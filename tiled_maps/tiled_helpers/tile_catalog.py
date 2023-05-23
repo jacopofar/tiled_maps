@@ -38,6 +38,7 @@ class TileCatalog:
                         self._tilenamecache[name] = this_gid
                         return this_gid
             currentgid += ts.tilecount
+        raise KeyError(f"Tile {name} not found")
 
 
 def scan_tileset_folder(folder: Path) -> TileCatalog:

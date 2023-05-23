@@ -10,6 +10,24 @@
  "tileheight":32,
  "tiles":[
         {
+         "id":14,
+         "properties":[
+                {
+                 "name":"name",
+                 "type":"string",
+                 "value":"tree_a"
+                }]
+        }, 
+        {
+         "id":19,
+         "properties":[
+                {
+                 "name":"name",
+                 "type":"string",
+                 "value":"paved_road_a"
+                }]
+        }, 
+        {
          "id":28,
          "properties":[
                 {
