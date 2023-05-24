@@ -25,7 +25,7 @@ TILE_RESOLUTION = int(environ["TILE_RESOLUTION"])
 CELL_PIXEL_SIZE = int(environ["CELL_PIXEL_SIZE"])
 
 
-@app.get("/game/maps/generated/world.world")
+@app.get("/maps/generated/world.world")
 def get_world_file():
     game_world_data = {
         "patterns": [
@@ -44,7 +44,30 @@ def get_world_file():
     return game_world_data
 
 
-@app.get("/game/{file_path:path}")
+@app.get("/zxy_gamified/{z}/{x}/{y}.{ext}")
+def generate_raster_tile(
+    z: int, x: int, y: int, ext: str, conn=Depends(get_connection)
+):
+    import time
+
+    start = time.time()
+    # path is fake, this is not going to be persisted
+    tm = generate.generate_map(Path("/fake"), x, y, z, conn, tiles=TILE_RESOLUTION)
+    print(f"Time for pure generation: {time.time() - start:.2f}")
+    data_repr = tm.to_dict()
+
+    if ext == "json":
+        return data_repr
+    elif ext == "png":
+        out_image = render_tilemap(tm)
+        ret_data = BytesIO()
+        out_image.save(ret_data, "PNG")
+        return Response(content=ret_data.getvalue(), media_type="image/png")
+    else:
+        return HTTPException(400, f"Unknown extension {ext}")
+
+
+@app.get("/{file_path:path}")
 def get_path(file_path: str, conn=Depends(get_connection)):
     base_folder = Path("demo_tilegame2")
     p = base_folder / file_path
@@ -74,27 +97,7 @@ def get_path(file_path: str, conn=Depends(get_connection)):
     data_repr = tm.to_dict()
     with open(p, "w") as fw:
         json.dump(data_repr, fw)
+    for relpath, content in tm.get_event_files():
+        with open(p.parent / relpath, "w") as fw:
+            fw.write(content)
     return data_repr
-
-
-@app.get("/zxy_gamified/{z}/{x}/{y}.{ext}")
-def generate_raster_tile(
-    z: int, x: int, y: int, ext: str, conn=Depends(get_connection)
-):
-    import time
-
-    start = time.time()
-    # path is fake, this is not going to be persisted
-    tm = generate.generate_map(Path("/fake"), x, y, z, conn, tiles=TILE_RESOLUTION)
-    print(f"Time for pure generation: {time.time() - start:.2f}")
-    data_repr = tm.to_dict()
-
-    if ext == "json":
-        return data_repr
-    elif ext == "png":
-        out_image = render_tilemap(tm)
-        ret_data = BytesIO()
-        out_image.save(ret_data, "PNG")
-        return Response(content=ret_data.getvalue(), media_type="image/png")
-    else:
-        return HTTPException(400, f"Unknown extension {ext}")

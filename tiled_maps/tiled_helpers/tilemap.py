@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from pathlib import Path
 import json
-
+from typing import Generator
 from tiled_maps.tiled_helpers.tileset import TileSet, TileSetTileDef
 
 
@@ -74,6 +74,8 @@ class TiledMap:
     tiledversion: str = "1.10.1"
     type: str = "map"
     version: str = "1.10"
+    event_data: list[tuple[int, int]] | None = None
+    event_files: list[tuple[str, str]] | None = None
 
     def resolve_tileset(self, tsr: TileSetRef) -> TileSet:
         """Fetches the actual tileset from the reference in the map."""
@@ -106,6 +108,14 @@ class TiledMap:
                 )
         raise KeyError(f"No tiles found for {tid}")
 
+    def add_event(self, x: int, y: int, name: str, content: list[str]) -> None:
+        """Add an event file to the map"""
+        if self.event_data is None:
+            self.event_data = []
+            self.event_files = []
+        self.event_data.append((x * self.tilewidth, y * self.tileheight, name))
+        self.event_files.append((f"{name}.json", json.dumps(content, indent=2)))
+
     def to_dict(self) -> dict:
         """An object that can be dumped as valid Tiled JSON"""
         ret = {}
@@ -115,12 +125,64 @@ class TiledMap:
             elif isinstance(v, Path):
                 ret[k] = str(v)
             elif k == "layers" and type(v) == list:
-                ret[k] = [l.to_dict() for l in v]
+                if "layers" not in ret:
+                    ret["layers"] = []
+                # we don't know if the event layers has been seen before or after
+                # so always append
+                # hopefully later this can be replaced with a proper Pydantic type
+                ret[k] = ret[k] + [l.to_dict() for l in v]
             elif k == "tilesets" and type(v) == list:
                 ret[k] = [tsr.to_dict() for tsr in v]
+            elif k == "event_data" and type(v) == list:
+                if "layers" not in ret:
+                    ret["layers"] = []
+                ret["layers"].append(
+                    {
+                        "draworder": "topdown",
+                        "id": len(self.layers) + 2,
+                        "name": "events",
+                        "offsety": 1,
+                        "opacity": 1,
+                        "type": "objectgroup",
+                        "visible": True,
+                        "x": 0,
+                        "y": 0,
+                        "objects": [
+                            {
+                                "height": 1,
+                                "id": idx + 1,
+                                "name": name,
+                                "properties": [
+                                    {
+                                        "name": "event_path",
+                                        "type": "string",
+                                        "value": f"{name}.json",
+                                    }
+                                ],
+                                "rotation": 0,
+                                "type": "event",
+                                "visible": True,
+                                "width": 1,
+                                "x": x,
+                                "y": y,
+                            }
+                            for idx, (x, y, name) in enumerate(self.event_data)
+                        ],
+                    }
+                )
+            elif k == "event_files":
+                # these are going to their own files, ignored here
+                continue
             else:
                 raise ValueError(f"How to serialize {k} of type {type(v)}?")
         return ret
+
+    def get_event_files(self) -> Generator[tuple[str, str], None, None]:
+        """Yields the event files as pairs of (path, content)"""
+        if self.event_files is None:
+            return
+        for path, content in self.event_files:
+            yield path, content
 
 
 def from_data(data: dict) -> TiledMap:

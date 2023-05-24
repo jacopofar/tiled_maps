@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Generator
+from os import environ
 
 import psycopg
 from shapely.geometry import shape, box
@@ -10,11 +11,22 @@ from tiled_maps.tiled_helpers.tile_catalog import scan_tileset_folder, TileCatal
 
 from tiled_maps.database import retrieve_features, cell_bbox
 
+CELL_PIXEL_SIZE = int(environ["CELL_PIXEL_SIZE"])
+
+
+@dataclass
+class Event:
+    x: int
+    y: int
+    name: str
+    content: list[any]
+
 
 @dataclass
 class TiledRepresentation:
     ground: dict[tuple[int, int], int]
     meter1: dict[tuple[int, int], int]
+    events: list[Event]
 
 
 def get_covered_points(
@@ -51,41 +63,67 @@ def represent_feature(
     cell_height: float,
 ) -> TiledRepresentation | None:
     if "building" in tags:
-        tr = TiledRepresentation(ground={}, meter1={})
+        tr = TiledRepresentation(ground={}, meter1={}, events=[])
         for x, y, p in get_covered_points(bbox, geom.bounds, cell_width, cell_height):
             if p.intersects(geom):
                 tr.ground[(x, y)] = catalog.get_tile_by_name("wall_bright")
         return tr
     elif tags.get("highway") in ("footway", "pedestrian"):
-        tr = TiledRepresentation(ground={}, meter1={})
+        tr = TiledRepresentation(ground={}, meter1={}, events=[])
         for x, y, p in get_covered_points(bbox, geom.bounds, cell_width, cell_height):
             if p.intersects(geom):
                 tr.ground[(x, y)] = catalog.get_tile_by_name("dirt_a")
         return tr
     elif tags.get("highway") in ("residential", "primary", "secondary"):
-        tr = TiledRepresentation(ground={}, meter1={})
+        tr = TiledRepresentation(ground={}, meter1={}, events=[])
         for x, y, p in get_covered_points(bbox, geom.bounds, cell_width, cell_height):
             if p.intersects(geom):
                 tr.ground[(x, y)] = catalog.get_tile_by_name("paved_road_a")
         return tr
     elif tags.get("natural") == "water":
-        tr = TiledRepresentation(ground={}, meter1={})
+        tr = TiledRepresentation(ground={}, meter1={}, events=[])
         for x, y, p in get_covered_points(bbox, geom.bounds, cell_width, cell_height):
             if p.intersects(geom):
                 tr.ground[(x, y)] = catalog.get_tile_by_name("water_a")
         return tr
     elif tags.get("landuse") == "grass":
-        tr = TiledRepresentation(ground={}, meter1={})
+        tr = TiledRepresentation(ground={}, meter1={}, events=[])
         park_tile_gid = catalog.get_tile_by_name("park_a")
         for x, y, p in get_covered_points(bbox, geom.bounds, cell_width, cell_height):
             if p.intersects(geom):
                 tr.ground[(x, y)] = park_tile_gid
         return tr
     elif tags.get("natural") == "tree":
-        tr = TiledRepresentation(ground={}, meter1={})
+        tr = TiledRepresentation(ground={}, meter1={}, events=[])
         for x, y, p in get_covered_points(bbox, geom.bounds, cell_width, cell_height):
             if p.intersects(geom):
                 tr.meter1[(x, y)] = catalog.get_tile_by_name("tree_a")
+                tr.events.append(
+                    Event(
+                        x,
+                        y,
+                        "tree",
+                        [
+                            {
+                                "conditions": [],
+                                "aspect": {
+                                    "spritesheet": "../../spritesheets/events/tree.json",
+                                    "z_index": 100,
+                                    "collide": "yes",
+                                },
+                                "on_interact": [
+                                    {
+                                        "command": "say",
+                                        "msgs": [
+                                            "Hello!",
+                                            "I am a tree, don't you see?",
+                                        ],
+                                    }
+                                ],
+                            }
+                        ],
+                    )
+                )
         return tr
     else:
         return None
@@ -117,8 +155,8 @@ def generate_map(
         path=path,
         height=tiles,
         width=tiles,
-        tileheight=32,
-        tilewidth=32,
+        tileheight=CELL_PIXEL_SIZE,
+        tilewidth=CELL_PIXEL_SIZE,
         layers=layers,
         nextobjectid=1,
         nextlayerid=len(layers) + 1,
@@ -137,4 +175,6 @@ def generate_map(
                 new_map.layers[0].set_tile(x, y, tid)
             for (x, y), tid in new_feat.meter1.items():
                 new_map.layers[1].set_tile(x, y, tid)
+            for event in new_feat.events:
+                new_map.add_event(event.x, event.y, event.name, event.content)
     return new_map
