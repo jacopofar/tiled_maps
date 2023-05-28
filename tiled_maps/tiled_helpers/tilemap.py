@@ -25,7 +25,11 @@ class Layer:
             yield ((idx % self.width) - self.x, (idx // self.height) - self.y, tid)
 
     def set_tile(self, x: int, y: int, tid: int) -> None:
-        self.data[x + y * self.width] = tid
+        try:
+            self.data[x + y * self.width] = tid
+        except IndexError:
+            # TODO avoid having to deal with it now
+            print(f"IndexError: {x}, {y}, {tid}")
 
     def to_dict(self) -> dict:
         """An object that can be dumped as valid Tiled JSON"""
@@ -74,7 +78,8 @@ class TiledMap:
     tiledversion: str = "1.10.1"
     type: str = "map"
     version: str = "1.10"
-    event_data: list[tuple[int, int]] | None = None
+    # x, y, name, props
+    event_data: list[tuple[int, int, str, dict]] | None = None
     event_files: list[tuple[str, str]] | None = None
 
     def resolve_tileset(self, tsr: TileSetRef) -> TileSet:
@@ -108,12 +113,16 @@ class TiledMap:
                 )
         raise KeyError(f"No tiles found for {tid}")
 
-    def add_event(self, x: int, y: int, name: str, content: list[str]) -> None:
+    def add_event(
+        self, x: int, y: int, name: str, props: dict, content: list[str]
+    ) -> None:
         """Add an event file to the map"""
+        # TODO event content here should be stored with a separate function
+        # right now we just assume the name and content are always paired
         if self.event_data is None:
             self.event_data = []
             self.event_files = []
-        self.event_data.append((x * self.tilewidth, y * self.tileheight, name))
+        self.event_data.append((x * self.tilewidth, y * self.tileheight, name, props))
         self.event_files.append((f"{name}.json", json.dumps(content, indent=2)))
 
     def to_dict(self) -> dict:
@@ -158,6 +167,10 @@ class TiledMap:
                                         "type": "string",
                                         "value": f"{name}.json",
                                     }
+                                ]
+                                + [
+                                    dict(name=k, type="string", value=v)
+                                    for k, v in props.items()
                                 ],
                                 "rotation": 0,
                                 "type": "event",
@@ -166,12 +179,15 @@ class TiledMap:
                                 "x": x,
                                 "y": y,
                             }
-                            for idx, (x, y, name) in enumerate(self.event_data)
+                            for idx, (x, y, name, props) in enumerate(self.event_data)
                         ],
                     }
                 )
             elif k == "event_files":
                 # these are going to their own files, ignored here
+                continue
+            elif k == "event_data" and v is None:
+                # no events, ignored
                 continue
             else:
                 raise ValueError(f"How to serialize {k} of type {type(v)}?")

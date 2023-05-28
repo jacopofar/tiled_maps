@@ -2,8 +2,8 @@
   "patterns": [
     {
       "regexp": "chunk_(\\-?\\d+)_(\\-?\\d+)\\.json",
-      "multiplierX": 640,
-      "multiplierY": 640,
+      "multiplierX": 2560,
+      "multiplierY": 2560,
       "offsetX": 0,
       "offsetY": 0
     }

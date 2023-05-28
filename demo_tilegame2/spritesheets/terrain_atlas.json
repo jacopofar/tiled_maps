@@ -8,6 +8,61 @@
  "tilecount":1024,
  "tiledversion":"1.10.1",
  "tileheight":32,
+ "tiles":[
+        {
+         "id":955,
+         "properties":[
+                {
+                 "name":"name",
+                 "type":"string",
+                 "value":"tree_small_1"
+                }]
+        }, 
+        {
+         "id":956,
+         "properties":[
+                {
+                 "name":"name",
+                 "type":"string",
+                 "value":"tree_small_2"
+                }]
+        }, 
+        {
+         "id":987,
+         "properties":[
+                {
+                 "name":"name",
+                 "type":"string",
+                 "value":"tree_small_3"
+                }]
+        }, 
+        {
+         "id":988,
+         "properties":[
+                {
+                 "name":"name",
+                 "type":"string",
+                 "value":"tree_small_4"
+                }]
+        }, 
+        {
+         "id":1019,
+         "properties":[
+                {
+                 "name":"name",
+                 "type":"string",
+                 "value":"tree_small_5"
+                }]
+        }, 
+        {
+         "id":1020,
+         "properties":[
+                {
+                 "name":"name",
+                 "type":"string",
+                 "value":"tree_small_6"
+                }]
+        }],
  "tilewidth":32,
  "type":"tileset",
  "version":"1.10"

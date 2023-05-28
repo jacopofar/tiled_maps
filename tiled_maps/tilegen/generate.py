@@ -19,6 +19,7 @@ class Event:
     x: int
     y: int
     name: str
+    props: dict
     content: list[any]
 
 
@@ -76,9 +77,44 @@ def represent_feature(
         return tr
     elif tags.get("highway") in ("residential", "primary", "secondary"):
         tr = TiledRepresentation(ground={}, meter1={}, events=[])
+        xcoords = []
+        ycoords = []
         for x, y, p in get_covered_points(bbox, geom.bounds, cell_width, cell_height):
             if p.intersects(geom):
                 tr.ground[(x, y)] = catalog.get_tile_by_name("paved_road_a")
+                xcoords.append(x)
+                ycoords.append(y)
+        # average x, y coordinates to get the center of the road
+        if len(xcoords) > 0:
+            x = int(sum(xcoords) / len(xcoords))
+            y = int(sum(ycoords) / len(ycoords))
+            tr.events.append(
+                Event(
+                    x,
+                    y,
+                    "road",
+                    dict(roadname=tags.get("name", "unnamed road")),
+                    [
+                        {
+                            "conditions": [],
+                            "aspect": {
+                                "spritesheet": "../../spritesheets/events/road.json",
+                                "z_index": 100,
+                                "collide": "yes",
+                            },
+                            "on_interact": [
+                                {
+                                    "command": "say",
+                                    "msgs": [
+                                        "Hello!",
+                                        "This is a road, $roadname",
+                                    ],
+                                }
+                            ],
+                        }
+                    ],
+                )
+            )
         return tr
     elif tags.get("natural") == "water":
         tr = TiledRepresentation(ground={}, meter1={}, events=[])
@@ -97,33 +133,13 @@ def represent_feature(
         tr = TiledRepresentation(ground={}, meter1={}, events=[])
         for x, y, p in get_covered_points(bbox, geom.bounds, cell_width, cell_height):
             if p.intersects(geom):
-                tr.meter1[(x, y)] = catalog.get_tile_by_name("tree_a")
-                tr.events.append(
-                    Event(
-                        x,
-                        y,
-                        "tree",
-                        [
-                            {
-                                "conditions": [],
-                                "aspect": {
-                                    "spritesheet": "../../spritesheets/events/tree.json",
-                                    "z_index": 100,
-                                    "collide": "yes",
-                                },
-                                "on_interact": [
-                                    {
-                                        "command": "say",
-                                        "msgs": [
-                                            "Hello!",
-                                            "I am a tree, don't you see?",
-                                        ],
-                                    }
-                                ],
-                            }
-                        ],
-                    )
-                )
+                tr.meter1[(x, y - 1)] = catalog.get_tile_by_name("tree_small_1")
+                tr.meter1[(x + 1, y - 1)] = catalog.get_tile_by_name("tree_small_2")
+                tr.meter1[(x, y)] = catalog.get_tile_by_name("tree_small_3")
+                tr.meter1[(x + 1, y)] = catalog.get_tile_by_name("tree_small_4")
+                tr.meter1[(x, y + 1)] = catalog.get_tile_by_name("tree_small_5")
+                tr.meter1[(x + 1, y + 1)] = catalog.get_tile_by_name("tree_small_6")
+
         return tr
     else:
         return None
@@ -175,6 +191,9 @@ def generate_map(
                 new_map.layers[0].set_tile(x, y, tid)
             for (x, y), tid in new_feat.meter1.items():
                 new_map.layers[1].set_tile(x, y, tid)
+
             for event in new_feat.events:
-                new_map.add_event(event.x, event.y, event.name, event.content)
+                new_map.add_event(
+                    event.x, event.y, event.name, event.props, event.content
+                )
     return new_map
