@@ -189,8 +189,10 @@ def generate_map(
         if new_feat is not None:
             for (x, y), tid in new_feat.ground.items():
                 new_map.layers[0].set_tile(x, y, tid)
-            for (x, y), tid in new_feat.meter1.items():
-                new_map.layers[1].set_tile(x, y, tid)
+            # draw this feature on meter1 only if every tile is empty
+            if all(new_map.layers[1].is_empty(x, y) for x, y in new_feat.meter1.keys()):
+                for (x, y), tid in new_feat.meter1.items():
+                    new_map.layers[1].set_tile(x, y, tid)
 
             for event in new_feat.events:
                 new_map.add_event(

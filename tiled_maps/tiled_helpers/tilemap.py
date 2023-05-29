@@ -28,8 +28,15 @@ class Layer:
         try:
             self.data[x + y * self.width] = tid
         except IndexError:
-            # TODO avoid having to deal with it now
+            # TODO maybe the caller should handle this?
             print(f"IndexError: {x}, {y}, {tid}")
+
+    def is_empty(self, x, y) -> bool:
+        try:
+            return self.data[x + y * self.width] == 0
+        except IndexError:
+            # TODO maybe the caller should handle this?
+            return True
 
     def to_dict(self) -> dict:
         """An object that can be dumped as valid Tiled JSON"""
