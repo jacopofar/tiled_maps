@@ -5,7 +5,7 @@
   "playerSpritesheet": "spritesheets/MainGuySpriteSheet.json",
   "startX": 350,
   "startY": 90,
-  "initialWorld": "maps/generated/world.world",
+  "initialWorld": "maps/manual/world.world",
   "playerSpriteHeight": 36,
   "playerSpriteWidth": 36,
   "backend": "ws://127.0.0.1:8000"

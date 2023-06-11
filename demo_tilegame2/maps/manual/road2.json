@@ -1,0 +1,19 @@
+[
+  {
+    "conditions": [],
+    "aspect": {
+      "spritesheet": "../../spritesheets/events/road2.json",
+      "z_index": 100,
+      "collide": "no"
+    },
+    "on_interact": [
+      {
+        "command": "say",
+        "msgs": [
+          "Hello!",
+          "This is a road, $roadname"
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "conditions": [],
+    "aspect": {
+      "spritesheet": "../../spritesheets/MainGuySpriteSheet_red.json",
+      "z_index": 100,
+      "collide": "yes",
+      "movement_speed": 50,
+      "step_duration": 0.5,
+      "path": ["left", "left", "idle", "up", "right", "left", "down", "right"]
+    },
+    "on_interact": [
+      {
+        "command": "say",
+        "msgs": [
+          "Hello!",
+          "This is a road, $roadname"
+        ]
+      }
+    ]
+  }
+]

@@ -140,9 +140,66 @@
          "width":128,
          "x":0,
          "y":0
+        },
+        {
+         "draworder":"topdown",
+         "id":2,
+         "name":"Events",
+         "objects":[
+                {
+                 "gid":0,
+                 "height":32,
+                 "id":2,
+                 "name":"event 1",
+                 "properties":[
+                        {
+                         "name":"event_path",
+                         "type":"string",
+                         "value":"road.json"
+                        },
+                        {
+                         "name":"roadname",
+                         "type":"string",
+                         "value":"test name 2"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":32,
+                 "x":272,
+                 "y":90
+                },
+                {
+                     "gid":0,
+                     "height":32,
+                     "id":3,
+                     "name":"event 2",
+                     "properties":[
+                            {
+                             "name":"event_path",
+                             "type":"string",
+                             "value":"road2.json"
+                            },
+                            {
+                             "name":"roadname",
+                             "type":"string",
+                             "value":"test name! \u56f3\u66f8\u9928"
+                            }],
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":32,
+                     "x":242,
+                     "y":106
+                    }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
         }],
- "nextlayerid":2,
- "nextobjectid":1,
+ "nextlayerid":3,
+ "nextobjectid":3,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.10.1",
@@ -151,15 +208,15 @@
         {
          "firstgid":1,
          "source":"..\/..\/spritesheets\/Mountain, Waterfall Transitions (Spring).json"
-        }, 
+        },
         {
          "firstgid":43,
          "source":"..\/..\/spritesheets\/Dirt (Non-Winter).json"
-        }, 
+        },
         {
          "firstgid":49,
          "source":"..\/..\/spritesheets\/Brick Wall A.json"
-        }, 
+        },
         {
          "firstgid":103,
          "source":"..\/..\/spritesheets\/Grass-Dirt (Spring).json"
