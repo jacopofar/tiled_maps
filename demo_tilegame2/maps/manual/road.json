@@ -7,7 +7,19 @@
       "collide": "yes",
       "movement_speed": 50,
       "step_duration": 0.5,
-      "path": ["left", "left", "idle", "up", "right", "left", "down", "right"]
+      "path": [
+        "left",
+        "left",
+        "idle",
+        "up",
+        "right",
+        "left",
+        "down",
+        "right",
+        "right",
+        "down",
+        "down"
+      ]
     },
     "on_interact": [
       {
