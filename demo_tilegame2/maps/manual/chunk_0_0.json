@@ -140,7 +140,7 @@
          "width":128,
          "x":0,
          "y":0
-        }, 
+        },
         {
          "draworder":"topdown",
          "id":2,
@@ -155,7 +155,7 @@
                          "name":"event_path",
                          "type":"string",
                          "value":"road.json"
-                        }, 
+                        },
                         {
                          "name":"roadname",
                          "type":"string",
@@ -167,7 +167,7 @@
                  "width":32,
                  "x":272,
                  "y":90
-                }, 
+                },
                 {
                  "height":32,
                  "id":3,
@@ -177,7 +177,7 @@
                          "name":"event_path",
                          "type":"string",
                          "value":"road2.json"
-                        }, 
+                        },
                         {
                          "name":"roadname",
                          "type":"string",
@@ -189,7 +189,26 @@
                  "width":32,
                  "x":242,
                  "y":106
-                }],
+                },
+              {
+                 "height":32,
+                 "id":3,
+                 "name":"event chest",
+                 "properties":[
+                        {
+                         "name":"event_path",
+                         "type":"string",
+                         "value":"chest.json"
+                        }
+                     ],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":32,
+                 "x":252,
+                 "y":126
+                }
+              ],
          "opacity":1,
          "type":"objectgroup",
          "visible":true,
@@ -206,19 +225,19 @@
         {
          "firstgid":1,
          "source":"..\/..\/spritesheets\/Mountain, Waterfall Transitions (Spring).json"
-        }, 
+        },
         {
          "firstgid":43,
          "source":"..\/..\/spritesheets\/Dirt (Non-Winter).json"
-        }, 
+        },
         {
          "firstgid":49,
          "source":"..\/..\/spritesheets\/Brick Wall A.json"
-        }, 
+        },
         {
          "firstgid":103,
          "source":"..\/..\/spritesheets\/Grass-Dirt (Spring).json"
-        }, 
+        },
         {
          "firstgid":124,
          "source":"..\/..\/spritesheets\/terrain_atlas.json"

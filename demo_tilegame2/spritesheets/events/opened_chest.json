@@ -1,0 +1,35 @@
+{
+  "frames": {
+    "down-0": {
+      "frame": {
+        "x": 448,
+        "y": 322,
+        "w": 32,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 448,
+        "y": 322,
+        "w": 32,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 512,
+        "h": 2048
+      }
+    }
+  },
+  "meta": {
+    "app": "sprite-sheet-to-json",
+    "version": "1.0.0",
+    "image": "../container-v4_2/container-v4_2/container.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 512,
+      "h": 2048
+    },
+    "scale": "1"
+  }
+}
