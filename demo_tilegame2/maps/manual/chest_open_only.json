@@ -1,0 +1,44 @@
+[
+  {
+    "conditions": [
+      ["chest_open", false]
+    ],
+    "aspect": {
+      "spritesheet": "../../spritesheets/events/closed_chest.json",
+      "z_index": 100,
+      "collide": "yes"
+    },
+    "on_interact": [
+      {
+        "command": "say",
+        "msgs": [
+          "You opened the chest, didn't you?",
+          "The other chests of this kind will open as well"
+        ]
+      },
+      {
+        "command": "set_boolean",
+        "variable": "chest_open",
+        "value": true
+      }
+    ]
+  },
+  {
+    "conditions": [
+      ["chest_open", true]
+    ],
+    "aspect": {
+      "spritesheet": "../../spritesheets/events/opened_chest.json",
+      "z_index": 100,
+      "collide": "yes"
+    },
+    "on_interact": [
+      {
+        "command": "say",
+        "msgs": [
+          "This chest is already open"
+        ]
+      }
+    ]
+  }
+]

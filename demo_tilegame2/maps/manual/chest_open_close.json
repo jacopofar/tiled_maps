@@ -1,7 +1,7 @@
 [
   {
     "conditions": [
-      ["chest_open", false]
+      ["chest_open_closable", false]
     ],
     "aspect": {
       "spritesheet": "../../spritesheets/events/closed_chest.json",
@@ -12,19 +12,19 @@
       {
         "command": "say",
         "msgs": [
-          "You opened the chest, didn't you?"
+          "Chest opened"
         ]
       },
       {
         "command": "set_boolean",
-        "variable": "chest_open",
+        "variable": "chest_open_closable",
         "value": true
       }
     ]
   },
   {
     "conditions": [
-      ["chest_open", true]
+      ["chest_open_closable", true]
     ],
     "aspect": {
       "spritesheet": "../../spritesheets/events/opened_chest.json",
@@ -35,8 +35,13 @@
       {
         "command": "say",
         "msgs": [
-          "This chest is already open"
+          "Closing the chest again"
         ]
+      },
+      {
+        "command": "set_boolean",
+        "variable": "chest_open_closable",
+        "value": false
       }
     ]
   }
