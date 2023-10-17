@@ -11,4 +11,4 @@ docker run --rm -d \
     --user "$(id -u):$(id -g)" \
     -v /etc/passwd:/etc/passwd:ro \
     -v $(pwd)/pgdata:/var/lib/postgresql/data \
-    postgis/postgis:15-master
+    postgis/postgis:16-master

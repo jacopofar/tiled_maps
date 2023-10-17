@@ -68,7 +68,7 @@ def generate_raster_tile(
 
 
 @app.get("/{file_path:path}")
-def get_path(file_path: str, conn=Depends(get_connection)):
+def get_path(file_path: str):
     base_folder = Path("demo_tilegame2")
     p = base_folder / file_path
     assert p.is_relative_to(base_folder)
@@ -85,13 +85,18 @@ def get_path(file_path: str, conn=Depends(get_connection)):
     geo_x = WORLD_CENTER_X + x
     geo_y = WORLD_CENTER_Y + y
     p = base_folder / f"maps/generated/chunk_{x}_{y}.json"
+    # if already there, read it and that's it
+    if p.exists():
+        with open(p) as fr:
+            return json.load(fr)
     print(f"Chunk {y, y} means XYZ {geo_x, geo_y, GAME_ZOOM_LEVEL}")
     import time
 
     start = time.time()
-    tm = generate.generate_map(
-        p, geo_x, geo_y, GAME_ZOOM_LEVEL, conn, tiles=TILE_RESOLUTION
-    )
+    with get_connection() as conn:
+        tm = generate.generate_map(
+            p, geo_x, geo_y, GAME_ZOOM_LEVEL, conn, tiles=TILE_RESOLUTION
+        )
     print(f"Time for pure generation: {time.time() - start:.2f}")
     # cache the file
     data_repr = tm.to_dict()

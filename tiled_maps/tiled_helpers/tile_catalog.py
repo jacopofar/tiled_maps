@@ -48,6 +48,10 @@ def scan_tileset_folder(folder: Path) -> TileCatalog:
             raw_data = json.load(fr)
         if raw_data.get("type", "") == "tileset":
             if "tiles" in raw_data:
-                raw_data["tiles"] = [TileSetTileDef(**tsd) for tsd in raw_data["tiles"]]
+                raw_data["tiles"] = [
+                    TileSetTileDef(**tsd)
+                    for tsd in raw_data["tiles"]
+                    if 'animation' not in tsd
+                ]
             ret.append(TileSet(path=str(p), **raw_data))
     return TileCatalog(tilesets=ret)

@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 from os import environ
 from typing import Generator
 import json
@@ -10,7 +11,7 @@ from shapely import prepare
 
 POSTGIS_CONN_STR = environ["POSTGIS_CONN_STR"]
 
-
+@contextmanager
 def get_connection():
     with psycopg.connect(POSTGIS_CONN_STR) as conn:
         info = TypeInfo.fetch(conn, "geometry")
