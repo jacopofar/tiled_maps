@@ -1,0 +1,24 @@
+[
+  {
+    "conditions": [],
+    "aspect": {
+      "spritesheet": "../../spritesheets/MainGuySpriteSheet_red.json",
+      "z_index": 100,
+      "collide": "yes"
+    },
+    "on_interact": [
+      {
+        "command": "say",
+        "msgs": [
+          "Prepare to reach the map..."
+        ]
+      },
+      {
+        "command": "teleport",
+        "world": "maps/generated/world.world",
+        "x": 100,
+        "y": 100
+      }
+    ]
+  }
+]

@@ -6,21 +6,21 @@
  "name":"terrain_atlas",
  "spacing":0,
  "tilecount":1024,
- "tiledversion":"1.10.1",
+ "tiledversion":"1.10.2",
  "tileheight":32,
  "tiles":[
         {
          "animation":[
                 {
-                 "duration":100,
+                 "duration":400,
                  "tileid":565
                 }, 
                 {
-                 "duration":100,
+                 "duration":400,
                  "tileid":566
                 }, 
                 {
-                 "duration":100,
+                 "duration":400,
                  "tileid":567
                 }],
          "id":565
